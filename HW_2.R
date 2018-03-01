@@ -1,6 +1,12 @@
 # Remove all extraneous variables
 rm(list = ls())
 
+mse <- function(sm) {
+  m <- mean(sm$residuals^2)
+  return(m);
+}
+
+# Part I #################################################################################
 # Simulating the fake data set
 # from a normal distribution, simulate 1000 values with a mean of 5 and std of 7
 x_1 <- rnorm(1000, 5, 7) 
@@ -11,23 +17,20 @@ hist(x_1, col="grey")
 true_error <- rnorm(1000, 0, 2)
 true_beta_0 <- 1.1
 true_beta_1 <- -8.2 
+true_beta_2 <- 3
+true_beta_3 <- -5
 
 y <- true_beta_0 + true_beta_1*x_1 + true_error
 
 hist(y) 
 plot(x_1, y, pch = 20, col ="red") 
 
-data.1 <- data.frame(cbind(x_1, y))
-
 # Checking the density of the repsonse variable
 plot(density(y), main="Density Plot: Y", ylab="y") 
 
 # Building a regression model, and finding estimated beta values
-mod1 <- lm(y~x_1, data = data.1)
+mod1 <- lm(y~x_1)
 summary(mod1)
-
-# estimate_beta_0 = 1.06997
-# estimate_beta_1 = -8.19802
 
 plot(mod1, pch = 16, which = 1)
 
@@ -35,46 +38,50 @@ plot(mod1, pch = 16, which = 1)
 x_2 <- rgamma(1000, 2, 10)
 hist(x_2, col="blue")
 
-y_2 <- true_beta_0*x_1 + true_beta_1*x_2 + true_error
-
-data.2 <- data.frame(cbind(x_1, x_2, y))
+y_2 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_error
 
 # fitting a model depending only on x_1
-mod2 <- lm(y_2~x_1, data = data.2)
+mod2 <- lm(y_2~x_1)
 summary(mod2)
 
-# estimate_beta_0 = -1.56808
-# estimate_beta_1 = 1.10089
-
 # fitting a model depending only on x_2
-mod3 <- lm(y_2~x_2, data = data.2)
+mod3 <- lm(y_2~x_2)
 summary(mod3)
 
-# estimate_beta_0 = 5.6784
-# estimate_beta_1 = -8.4940
-
 # finding a model dependant on both x_1 and X_2
-mod4 <- lm(y_2~x_1 + x_2, data = data.2)
+mod4 <- lm(y_2~x_1 + x_2)
 summary(mod4)
 
-# estimate_beta_0 = 1.102070
-# estimate_beta_1 = -8.900546
 
-# DO THE SAMPLE MEAN WHATEVER THINGER 
+# Finding the sample  
+data.1 <- data.frame(cbind(x_1, x_2, y))
+
+set.seed(100)
+trainingIndices <- sample(1:nrow(data.1), 0.8*nrow(data.1), replace = FALSE, prob = NULL)
+
+training <- data.1[trainingIndices ,]
+test <- data.1[-trainingIndices ,]
+
+# finding the model of sample data
+modTraining1 <- lm(training[, 3] ~ training[, 1] + training[, 2])
+
+# Calculate the square mean
+sq_train <- mse(modTraining1)
+
+# test on test data 
+sq_test <- mean((test$y - predict.lm(modTraining1, test))^2)
 
 # Delaring new variable z 
 z <- x_1^2
 
-data.3 <- data.frame(cbind(x_1, x_2, z, y))
+y_3 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_beta_3*z+ true_error
 
 # declaring a model based on x_1, AND z only
-mod5 <- lm(y_2~x_1, data = data.3)
+mod5 <- lm(y_3~x_1)
 summary(mod5) 
 
-mod6 <- lm(y_2~x_1 + z, data = data.3)
+mod6 <- lm(y_3~x_1 + z)
 summary(mod6)
-
-# dont understand the point, but sure 
 
 # DO THE SAMPLE MEAN SHIT SHIT SHIT
 
@@ -102,3 +109,7 @@ hist(x_2.t, col = "blue")
 hist(y_3, col = "pink" )
 
 plot(data.4)
+
+# Part II ##############################################################################
+
+
