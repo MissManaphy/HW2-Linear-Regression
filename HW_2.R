@@ -31,7 +31,7 @@ summary(mod1)
 
 plot(mod1, pch = 16, which = 1)
 
-# Declaring second variable, and finding linear distributions
+e# Declaring second variable, and finding linear distributions
 x_2 <- rgamma(1000, 2, 10)
 hist(x_2, col="blue")
 
@@ -102,3 +102,4 @@ hist(x_2.t, col = "blue")
 hist(y_3, col = "pink" )
 
 plot(data.4)
+
