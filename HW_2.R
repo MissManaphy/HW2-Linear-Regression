@@ -19,12 +19,13 @@ x_1 <- rnorm(1000, 5, 7)
 hist(x_1, col="grey")
 
 true_error <- rnorm(1000, 0, 2)
-true_beta_0 <- 1.1
+true_beta_0 <- 1.1 #These are all arbitrary numbers
 true_beta_1 <- -8.2 
 true_beta_2 <- 3
 true_beta_3 <- -5
 
-y <- true_beta_0 + true_beta_1*x_1 + true_error
+y <- true_beta_0 + true_beta_1*x_1 + true_error ##Linear model depending only on x_1
+#What we're trying to recover
 
 hist(y) 
 plot(x_1, y, pch = 20, col ="red") 
@@ -33,39 +34,57 @@ plot(x_1, y, pch = 20, col ="red")
 plot(density(y), main="Density Plot: Y", ylab="y") 
 
 # Building a regression model, and finding estimated beta values
-mod1 <- lm(y~x_1)
+mod1 <- lm(y~x_1) ##Can this recover the true beta of X_1
 summary(mod1)
+#Summary shows intercept and coefficents of x_1 estimate, which are beta0 and beta1
+#Coefficients:(these ones)
+#               Estimate  Std. Error t value  Pr(>|t|)    
+#  (Intercept)  1.234657   0.078525   15.72   <2e-16 ***
+#  x_1         -8.200803   0.008841 -927.62   <2e-16 ***
 
 plot(mod1, pch = 16, which = 1)
 
 # Declaring second variable, and finding linear distributions
-x_2 <- rgamma(1000, 2, 10)
+x_2 <- rgamma(1000, 2, 10) ##gamma distribution is left heavy instead of center heavy
 hist(x_2, col="blue")
 
 y_2 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_error
 
-# fitting a model depending only on x_1 & plotting root mean square error
+# fitting a model depending only in terms of x_1 & plotting root mean square error
 mod2 <- lm(y_2~x_1)
 summary(mod2)
 
+#Coefficients:                 (C)
+#             Estimate Std.    Error     t value   Pr(>|t|)    
+#(Intercept)  (A) (1.839487)   0.080625   22.82    <2e-16 ***
+#  x_1        (B) (-8.201836)  0.009077  -903.57   <2e-16 ***
+
+#YP1 is our way of seeing how significantly each variable contributes to the model
+#Starting in this case with x_1
+
+#         (A)                    (B)                        (C)
 y_p_1 <- mod2$coefficients[1] + mod2$coefficients[2]*x_1 + mod2$residuals
-rmse_data <- c()
+rmse_data <- c() #pre-declared vector for root mean squared error
 
-set.seed(100)
+set.seed(100) ##for random number generators
 
-for (i in seq(10,1000,20)) {
-  idxs <- sample(1:1000, as.integer(i))
+for (i in seq(10,1000,20)) { ##10 to 1000 with 20 as the step size --> 10, 30, 50, etc...
+  idxs <- sample(1:1000, as.integer(i)) #extracts random numbers between 1 and 1000 
   
-  obsY <- y_2[idxs]
-  simY <- y_p_1[idxs]
+  obsY <- y_2[idxs] #take those out of the original y_2
+  simY <- y_p_1[idxs] #take those out of our y_prime_1 model
 
-  rmse_data <- c(rmse_data, rmse(obsY, simY))
-    
+  rmse_data <- c(rmse_data, rmse(obsY, simY)) #like string concatination
+  #RMSE is a pre-defined function that we have access to with a specific package
+  #the RMSE generally gives you the numerical difference between the actual and predicted values
 }
 
+#this is just putting it all in a data frame and plotting it out
 tb <- data.frame(t(rbind(seq(10,1000,20), rmse_data)))
 plot(tb, main = "Root Mean Standard Error Plot")
 lines(tb, col = "blue" )
+#The plot itself tells us 
+
 
 # fitting a model depending only on x_2
 mod3 <- lm(y_2~x_2)
