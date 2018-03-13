@@ -7,11 +7,12 @@ mse <- function(sm) {
   return(m);
 }
 
-# Part I #################################################################################
 # Importing packages
 install.packages("Metrics")
 library("Metrics")
 
+
+# Part I #################################################################################
 # Simulating the fake data set
 # from a normal distribution, simulate 1000 values with a mean of 5 and std of 7
 x_1 <- rnorm(1000, 5, 7) 
@@ -25,8 +26,8 @@ true_beta_1 <- -8.2
 true_beta_2 <- 3
 true_beta_3 <- -5
 
-y <- true_beta_0 + true_beta_1*x_1 + true_error ##Linear model depending only on x_1
 #What we're trying to recover
+y <- true_beta_0 + true_beta_1*x_1 + true_error
 
 hist(y) 
 plot(x_1, y, pch = 20, col ="red") 
@@ -47,7 +48,7 @@ summary(mod1)
 plot(mod1, pch = 16, which = 1)
 
 # Declaring second variable, and finding linear distributions
-x_2 <- rgamma(1000, 2, 10) ##gamma distribution is left heavy instead of center heavy
+x_2 <- rgamma(1000, 2, 10)
 hist(x_2, col="blue")
 
 y_2 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_error
@@ -60,21 +61,19 @@ summary(mod2)
 #             Estimate Std.    Error     t value   Pr(>|t|)    
 #(Intercept)  (A) (1.839487)   0.080625   22.82    <2e-16 ***
 #  x_1        (B) (-8.201836)  0.009077  -903.57   <2e-16 ***
-
 #YP1 is our way of seeing how significantly each variable contributes to the model
 #Starting in this case with x_1
+y_p_1 <- mod2$coefficients[1] + mod2$coefficients[2]*x_1
+rmse_data <- c()
 
 #         (A)                    (B)                        (C)
-y_p_1 <- mod2$coefficients[1] + mod2$coefficients[2]*x_1 + mod2$residuals
-rmse_data <- c() #pre-declared vector for root mean squared error
+set.seed(100)
 
-set.seed(100) ##for random number generators
-
-for (i in seq(10,1000,20)) { ##10 to 1000 with 20 as the step size --> 10, 30, 50, etc...
-  idxs <- sample(1:1000, as.integer(i)) #extracts random numbers between 1 and 1000 
+for (i in seq(10,1000,20)) {
+  idxs <- sample(1:1000, as.integer(i))
   
-  obsY <- y_2[idxs] #take the values out of the original y_2
-  simY <- y_p_1[idxs] #take those out of our y_prime_1 model
+  obsY <- y_2[idxs]
+  simY <- y_p_1[idxs]
 
   rmse_data <- c(rmse_data, rmse(obsY, simY))
   #RMSE is a pre-defined function that we have access to with a specific package
@@ -89,11 +88,12 @@ plot(tb, main = "Root Mean Square Error Plot of x_1")
 lines(tb, col = "blue" ) 
 #The plot itself tells us how much error you see with each random sampling of data
 
+
 # fitting a model depending only on x_2
 mod3 <- lm(y_2~x_2)
 summary(mod3)
 
-y_p_2 <- mod3$coefficients[1] + mod3$coefficients[2]*x_2 + mod3$residuals
+y_p_2 <- mod3$coefficients[1] + mod3$coefficients[2]*x_2 
 rmse_data.1 <- c()
 
 for (i in seq(10,1000,20)) {
@@ -116,7 +116,7 @@ lines(tb.1, col = "red" )
 mod4 <- lm(y_2~x_1 + x_2)
 summary(mod4)
 
-y_p_3 <- mod4$coefficients[1] + mod4$coefficients[2]*x_1 + mod4$coefficients[3]*x_2 + mod4$residuals
+y_p_3 <- mod4$coefficients[1] + mod4$coefficients[2]*x_1 + mod4$coefficients[3]*x_2 
 rmse_data.2 <- c()
 
 for (i in seq(10,1000,20)) {
@@ -150,8 +150,26 @@ summary(mod5)
 mod6 <- lm(y_3~x_1 + z)
 summary(mod6)
 
-# DO THE SAMPLE MEAN SHIT SHIT SHIT
+# finding the sample mean 
+y_p_4 <- mod6$coefficients[1] + mod6$coefficients[2]*x_1 + mod6$coefficients[3]*z
+rmse_data.3 <- c()
 
+for (i in seq(10,1000,20)) {
+  idxs <- sample(1:1000, as.integer(i))
+  
+  obsY <- y_3[idxs]
+  simY <- y_p_4[idxs]
+  
+  rmse_data.3 <- c(rmse_data.3, rmse(obsY, simY))
+}
+
+# Plotting the RMSE for x_1 and x_2 
+tb.3 <- data.frame(t(rbind(seq(10,1000,20), rmse_data.3)))
+plot(tb.3, main = "Root Mean Square Error Plot of both x_1 and z")
+lines(tb.3, col = "pink" )
+
+
+# TEST CHANGE
 # Playing around with data--just change the values in this section
 # Then run only this section and record the results in the report
 true_error.t <- rnorm(1000, 0, 2)
@@ -161,11 +179,11 @@ true_beta_1.t <- 2
 x_1.t <- rnorm(1000, 2) 
 x_2.t <- rexp(1000)
 
-y_3 <- true_beta_0.t*x_1.t + true_beta_1.t*x_2.t + true_error.t
+y.t <- true_beta_0.t*x_1.t + true_beta_1.t*x_2.t + true_error.t
 
-data.4 <- data.frame(cbind(x_1.t, x_2.t, y_3))
+data.4 <- data.frame(cbind(x_1.t, x_2.t, y.t))
 
-mod7 <- lm(y_3~x_1.t + x_2.t, data = data.4)
+mod7 <- lm(y.t~x_1.t + x_2.t, data = data.4)
 summary(mod7)
 
 plot(mod7, pch = 16, which = 1)
@@ -173,8 +191,10 @@ plot(mod7, pch = 16, which = 1)
 # plotting histograms and scatterplots (just for part d)
 hist(x_1.t, col="red")
 hist(x_2.t, col = "blue")
-hist(y_3, col = "pink" )
+hist(y.t, col = "pink" )
 
 plot(data.4)
+
+# Part II ##############################################################################
 
 
