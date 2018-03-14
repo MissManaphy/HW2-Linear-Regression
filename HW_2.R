@@ -26,7 +26,6 @@ true_beta_1 <- -8.2
 true_beta_2 <- 3
 true_beta_3 <- -5
 
-#What we're trying to recover
 y <- true_beta_0 + true_beta_1*x_1 + true_error
 
 hist(y) 
@@ -38,12 +37,6 @@ plot(density(y), main="Density Plot: Y", ylab="y")
 # Building a regression model, and finding estimated beta values
 mod1 <- lm(y~x_1)
 summary(mod1)
-
-#Summary shows intercept and coefficents of x_1 estimate, which are beta0 and beta1
-#Coefficients:(these ones)
-#               Estimate  Std. Error t value  Pr(>|t|)    
-#  (Intercept)  1.234657   0.078525   15.72   <2e-16 ***
-#  x_1         -8.200803   0.008841 -927.62   <2e-16 ***
 
 plot(mod1, pch = 16, which = 1)
 
@@ -57,16 +50,9 @@ y_2 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_error
 mod2 <- lm(y_2~x_1)
 summary(mod2)
 
-#Coefficients:                 (C)
-#             Estimate Std.    Error     t value   Pr(>|t|)    
-#(Intercept)  (A) (1.839487)   0.080625   22.82    <2e-16 ***
-#  x_1        (B) (-8.201836)  0.009077  -903.57   <2e-16 ***
-#YP1 is our way of seeing how significantly each variable contributes to the model
-#Starting in this case with x_1
 y_p_1 <- mod2$coefficients[1] + mod2$coefficients[2]*x_1
 rmse_data <- c()
 
-#         (A)                    (B)                        (C)
 set.seed(100)
 
 for (i in seq(10,1000,20)) {
@@ -76,17 +62,14 @@ for (i in seq(10,1000,20)) {
   simY <- y_p_1[idxs]
 
   rmse_data <- c(rmse_data, rmse(obsY, simY))
-  #RMSE is a pre-defined function that we have access to with a specific package
-  #the RMSE generally gives you the numerical difference between the actual and predicted values
     
 }
 
 # Plotting the RMSE for x_1
-#this is just putting it all in a data frame and plotting it out
 tb <- data.frame(t(rbind(seq(10,1000,20), rmse_data)))
-plot(tb, main = "Root Mean Square Error Plot of x_1")
+plot(tb, main = "Root Mean Square Error Plot of x_1", xlab = "Sample size", 
+     ylab = "RMSE")
 lines(tb, col = "blue" ) 
-#The plot itself tells us how much error you see with each random sampling of data
 
 
 # fitting a model depending only on x_2
@@ -108,7 +91,8 @@ for (i in seq(10,1000,20)) {
 
 # Plotting the RMSE for x_2
 tb.1 <- data.frame(t(rbind(seq(10,1000,20), rmse_data.1)))
-plot(tb.1, main = "Root Mean Square Error Plot of x_2")
+plot(tb.1, main = "Root Mean Square Error Plot of x_2", xlab = "Sample Size",
+     ylab = "RMSE")
 lines(tb.1, col = "red" )
 
 
@@ -131,7 +115,9 @@ for (i in seq(10,1000,20)) {
 
 # Plotting the RMSE for x_1 and x_2 
 tb.2 <- data.frame(t(rbind(seq(10,1000,20), rmse_data.2)))
-plot(tb.2, main = "Root Mean Square Error Plot of both x_1 and x_2")
+plot(tb.2, main = "Root Mean Square Error Plot of both x_1 and x_2", 
+     xlab = "Sample Size", ylab = "Root Mean Square Error", xlab = "Sample Size",
+     ylab = "RMSE")
 lines(tb.2, col = "pink" )
 
 # separating the new data set 
@@ -165,7 +151,8 @@ for (i in seq(10,1000,20)) {
 
 # Plotting the RMSE for x_1 and x_2 
 tb.3 <- data.frame(t(rbind(seq(10,1000,20), rmse_data.3)))
-plot(tb.3, main = "Root Mean Square Error Plot of both x_1 and z")
+plot(tb.3, main = "Root Mean Square Error Plot of both x_1 and z",
+     xlab = "Sample Size", ylab = "RMSE")
 lines(tb.3, col = "pink" )
 
 
@@ -173,13 +160,14 @@ lines(tb.3, col = "pink" )
 # Playing around with data--just change the values in this section
 # Then run only this section and record the results in the report
 true_error.t <- rnorm(1000, 0, 2)
-true_beta_0.t <- 5
+true_beta_0.t <- 5.5
 true_beta_1.t <- 2
+true_beta_2.t <- -4.1
 
-x_1.t <- rnorm(1000, 2) 
+x_1.t <- rlnorm(1000, 2) 
 x_2.t <- rexp(1000)
 
-y.t <- true_beta_0.t*x_1.t + true_beta_1.t*x_2.t + true_error.t
+y.t <- true_beta_0.t + true_beta_1.t*x_1.t + true_beta_2.t*x_2.t+ true_error.t
 
 data.4 <- data.frame(cbind(x_1.t, x_2.t, y.t))
 
@@ -193,8 +181,7 @@ hist(x_1.t, col="red")
 hist(x_2.t, col = "blue")
 hist(y.t, col = "pink" )
 
+
 plot(data.4)
 
 # Part II ##############################################################################
-
-
