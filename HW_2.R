@@ -116,8 +116,7 @@ for (i in seq(10,1000,20)) {
 # Plotting the RMSE for x_1 and x_2 
 tb.2 <- data.frame(t(rbind(seq(10,1000,20), rmse_data.2)))
 plot(tb.2, main = "Root Mean Square Error Plot of both x_1 and x_2", 
-     xlab = "Sample Size", ylab = "Root Mean Square Error", xlab = "Sample Size",
-     ylab = "RMSE")
+     xlab = "Sample Size", ylab = "Root Mean Square Error")
 lines(tb.2, col = "pink" )
 
 # separating the new data set 
@@ -159,12 +158,12 @@ lines(tb.3, col = "pink" )
 # TEST CHANGE
 # Playing around with data--just change the values in this section
 # Then run only this section and record the results in the report
-true_error.t <- rnorm(1000, 0, 2)
-true_beta_0.t <- 5.5
-true_beta_1.t <- 2
+true_error.t <- rlnorm(1000, 0, 2)
+true_beta_0.t <- -5.5
+true_beta_1.t <- -2
 true_beta_2.t <- -4.1
 
-x_1.t <- rlnorm(1000, 2) 
+x_1.t <- rgamma(1000, 2) 
 x_2.t <- rexp(1000)
 
 y.t <- true_beta_0.t + true_beta_1.t*x_1.t + true_beta_2.t*x_2.t+ true_error.t
@@ -183,5 +182,3 @@ hist(y.t, col = "pink" )
 
 
 plot(data.4)
-
-# Part II ##############################################################################
