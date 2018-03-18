@@ -18,7 +18,7 @@ library("Metrics")
 x_1 <- rnorm(1000, 5, 7) 
 
 # plotting data
-hist(x_1, col="grey")
+hist(x_1, col="pink")
 
 true_error <- rnorm(1000, 0, 2)
 true_beta_0 <- 1.1
@@ -120,11 +120,11 @@ plot(tb.2, main = "Root Mean Square Error Plot of both x_1 and x_2",
 lines(tb.2, col = "pink" )
 
 # separating the new data set 
-data.1 <- data.frame(cbind(x_1, x_2, y_2))
-
+data.1 <- data.frame(cbind(x_1, x_2, y, y_2))
+plot(data.1)
 
 # Delaring new variable z 
-z <- x_1^2
+z <- x_1**2
 
 y_3 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_beta_3*z+ true_error
 
@@ -132,8 +132,17 @@ y_3 <- true_beta_0 + true_beta_1*x_1 + true_beta_2*x_2 + true_beta_3*z+ true_err
 mod5 <- lm(y_3~x_1)
 summary(mod5) 
 
+plot(mod5, pch = 16, which = 1)
+
+mod5.1 <- lm(y_3~z)
+
+plot(mod5.1, pch = 16, which = 1)
+
+
 mod6 <- lm(y_3~x_1 + z)
 summary(mod6)
+
+plot(mod6, pch = 16, which = 1)
 
 # finding the sample mean 
 y_p_4 <- mod6$coefficients[1] + mod6$coefficients[2]*x_1 + mod6$coefficients[3]*z
@@ -174,6 +183,24 @@ mod7 <- lm(y.t~x_1.t + x_2.t, data = data.4)
 summary(mod7)
 
 plot(mod7, pch = 16, which = 1)
+
+# finding rmse 
+y_p_5 <- mod7$coefficients[1] + mod7$coefficients[2]*x_1.t + mod7$coefficients[3]*x_2.t
+rmse_data.4 <- c()
+
+for (i in seq(10,1000,20)) {
+  idxs <- sample(1:1000, as.integer(i))
+  
+  obsY <- y.t[idxs]
+  simY <- y_p_5[idxs]
+  
+  rmse_data.4 <- c(rmse_data.4, rmse(obsY, simY))
+}
+
+tb.4 <- data.frame(t(rbind(seq(10,1000,20), rmse_data.4)))
+plot(tb.4, main = "Root Mean Square Error Plot of both x_1.t and x_2.t",
+     xlab = "Sample Size", ylab = "RMSE")
+lines(tb.4, col = "blue" )
 
 # plotting histograms and scatterplots (just for part d)
 hist(x_1.t, col="red")
